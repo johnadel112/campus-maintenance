@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "command": "node .cursor/hooks/protect-files.mjs",
+        "failClosed": true
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "node .cursor/hooks/format-after-edit.mjs",
+        "timeout": 30
+      }
+    ]
+  }
+}

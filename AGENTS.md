@@ -4,7 +4,7 @@
 
 - Backend: NestJS + Mongoose in `apps/api`
 - Frontend: Next.js App Router in `apps/web`
-- Database: MongoDB Atlas
+- Database: MongoDB (local `mongodb://localhost:27017/maintenance` for development; connection string in `apps/api/.env`)
 - API docs: Swagger
 - Generated types: `apps/web/lib/api-types.ts`
 - Specification: `specs/campus-maintenance.md`
