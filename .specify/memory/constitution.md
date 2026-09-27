@@ -1,64 +1,78 @@
-# [PROJECT_NAME] Constitution
-
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Campus Maintenance Request System Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
+### I. Code Quality
 
-<!-- Example: I. Library-First -->
+- Code MUST be TypeScript with no `any` unless unavoidable, and every exception MUST be justified
+  in a code comment and in the pull request.
+- `npm run lint` MUST pass in `apps/api` and `apps/web`; Prettier formatting is enforced by the
+  pre-commit hook and MUST NOT be bypassed.
+- New packages MUST NOT be added without team approval recorded in the pull request.
+- UI MUST be built from the shared `components/ui` (shadcn/ui) components and the design tokens in
+  `apps/web/app/globals.css`.
 
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+Rationale: a small team shares one codebase; consistent, typed, linted code keeps reviews fast.
 
-### [PRINCIPLE_2_NAME]
+### II. Tests for Every Service (NON-NEGOTIABLE)
 
-<!-- Example: II. CLI Interface -->
+- Every NestJS service method MUST have unit tests covering its success path and its documented
+  failure paths (for example: unsupported category, missing request).
+- Every endpoint MUST have tests proving validation behaviour: 400 on invalid input, 404 on a
+  missing resource where applicable.
+- User-facing flows (report, list/filter, resolve) MUST be verified end to end with Playwright
+  before the feature's pull request is merged.
+- `npm test` MUST pass locally and in CI before merge.
 
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Rationale: services hold the business rules; untested services make the spec unenforceable.
 
-### [PRINCIPLE_3_NAME]
+### III. MVC Separation
 
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
+- Controllers MUST handle HTTP concerns only (routing, status codes, DTO binding, Swagger
+  decorators) and MUST NOT access Mongoose models.
+- Services MUST own business logic and all database operations.
+- Mongoose schemas MUST define persistence; DTOs with class-validator MUST define and validate
+  API input.
+- The Next.js frontend MUST call the API and MUST NOT access MongoDB directly; it MUST use the
+  generated types in `apps/web/lib/api-types.ts`.
 
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+Rationale: clear boundaries let four students work on separate slices without conflicts.
 
-### [PRINCIPLE_4_NAME]
+### IV. No Secrets in Code
 
-<!-- Example: IV. Integration Testing -->
+- Connection strings, passwords, tokens and API keys MUST live only in untracked environment
+  files (`apps/api/.env`, `apps/web/.env.local`) and MUST NOT appear in source, tests, docs, logs,
+  pull requests or `docs/ai-log.md`.
+- AI agents MUST NOT read or edit `.env` files; the project hooks block such edits.
+- A secret committed by mistake MUST be removed and the credential rotated immediately.
 
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Rationale: the repository is public; anything committed is permanently exposed.
 
-### [PRINCIPLE_5_NAME]
+## Technology and Scope Constraints
 
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
+- Backend: NestJS + Mongoose in `apps/api`, listening on port 3001, Swagger UI at `/api`.
+- Frontend: Next.js App Router + shadcn/ui in `apps/web`, on port 3000.
+- Database: MongoDB, configured only through `MONGODB_URI`.
+- The API contract and validation rules in `specs/campus-maintenance.md` are authoritative:
+  categories are `equipment`, `electrical`, `plumbing`, `facility`, `other`; statuses are `open`
+  and `resolved`; the client MUST NOT set status on create.
+- Features listed as out of scope in the specification MUST NOT be built without team approval.
 
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+## Development Workflow
 
-## [SECTION_2_NAME]
-
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
-
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- Every change MUST go through a feature branch and a pull request into `main`; `main` is
+  protected and requires one approval plus passing `api` and `web` CI checks.
+- The API types MUST be regenerated with openapi-typescript whenever the API changes.
+- Authors MUST read every changed line, log AI assistance in `docs/ai-log.md`, and complete the
+  pull request template before requesting review.
 
 ## Governance
 
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+- This constitution supersedes other practices; `AGENTS.md` provides day-to-day guidance and MUST
+  stay consistent with it.
+- Amendments require a pull request approved by at least one teammate, with the version bumped
+  using semantic versioning: MAJOR for removed or redefined principles, MINOR for new principles or
+  sections, PATCH for wording fixes.
+- Reviewers MUST check pull requests against these principles.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-09-27 | **Last Amended**: 2026-09-27
